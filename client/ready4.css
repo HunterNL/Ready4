@@ -1,0 +1,97 @@
+/* CSS declarations go here */
+body {
+	background-color: #ddd;
+	color: #444;
+}
+
+body > div {
+	width: 70%;
+	margin: 10px auto;
+	/*border: 2px solid #555;*/
+	padding: 5px;
+}
+
+h1 {
+	text-align: center;
+}
+
+input[type=text] {
+	border: none;
+	border-bottom: solid 2px #222;
+	background-color: #ddd;
+	vertical-align: middle;
+	font-size: 24px;
+}
+
+.outline {
+	border: 2px dashed #900;
+	border-radius: 3px;
+	
+}
+
+tr {
+	border: 3px solid #999;
+}
+
+table {
+	border-collapse: collapse;
+	font-size: 2em;
+}
+
+table td {
+	padding: 5px;
+}
+
+table td:first-child {
+	padding-right: 2em;
+}
+
+.is_self td[data-intent],.is_self i {
+	cursor: pointer;
+}
+
+table form {
+	display: inline;
+}
+
+
+/*
+.yep {
+	color: #060;
+}
+
+.nope {
+	color: #600;
+}
+
+.later {
+	color: #006;
+}*/
+
+.yep {
+	color: #999;
+}
+
+.nope {
+	color: #999;
+}
+
+.later {
+	color: #999;
+}
+
+.active {
+	/*font-weight: bold;*/
+}
+
+.yep.active {
+	color: green;
+}
+
+.nope.active {
+	color: red;
+}
+
+.later.active {
+	color: blue
+}

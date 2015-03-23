@@ -1,0 +1,61 @@
+<head><title>Ready 4</title></head>
+
+<template name="home">
+	<p>Poll your friends and see if they're ready for {{example_event}}</p>
+	{{>room_form}}
+	{{#if currentRoom}}
+		{{>room_options}}
+		{{>room currentRoom}}
+	{{/if}}
+</template>
+
+<template name="room_form">
+<form id="new_room_form" action="" >
+<h1>Ready for <input type="text" placeholder="" autofocus>?</h1>
+<h2 id="errormsg"></h2>
+</form>
+</template>
+
+<template name="room_admin">
+<div class="outline">
+<p>Great, your poll is now open for friends to enter, just give them this link: {{room_url}}</p>
+<p>There's a a copy of what your friends will see below</p>
+<p>If you want, you can set a user limit: </p>
+<form><input type="number" width="2"></form>
+</div>
+</template>
+
+<template name="loading">
+<h1>Hang on!</h1>
+</template>
+
+<template name="user_list">
+<div>
+<table>
+{{#each users}} 
+	<tr class={{trclass}}>
+		{{#if editing_name}}
+			<form id="name_edit_form"><input id="name_edit" type="text"></form>
+			<i class="fa fa-check" data-action="name_edit_confirm"></i>
+			<i class="fa fa-undo" data-action="name_edit_cancel"></i>
+		{{else}}
+			{{{name}}} 
+		{{/if}}
+			
+		{{{intents}}}
+	</tr>
+{{/each}}
+</table>
+</div>
+</template>
+
+<template name="room">
+<h1>Ready for {{title}}?</h1>
+{{#if isOwner}}
+	{{>room_admin}}
+{{/if}}
+{{>user_list}}
+
+</template>
+
+
