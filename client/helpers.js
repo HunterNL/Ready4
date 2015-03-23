@@ -42,7 +42,7 @@ Template.user_list.helpers({
 		return (Session.get("editing_name") === true && this.userId == Meteor.userId())
 	},
 	
-	//TODO Fix this mess
+	//Gets the name of a user, including self suffix, defaulting when no name is set
 	name : function() {
 		function isSelf(user) {
 			return user && user._id == Meteor.userId()
@@ -67,28 +67,14 @@ Template.user_list.helpers({
 	
 		var user = Meteor.users.findOne(this.userId)
 		var username = getName(user)
-		var easter_egg = (username.toLowerCase().indexOf("hunter")> -1?" <i class='fa fa-paw'></i>":"")
+		var easter_egg = (username.toLowerCase().indexOf("hunter")> -1?" <i class='fa fa-paw'></i>":"") //Rawr
 		var edit_icon = (isSelf(user)?'<i class="fa fa-edit" data-action="name_edit"></i>':"")
 		
-		
 		return "<td>"+username+easter_egg+" "+edit_icon+"</td>"
-		
-		/*
-		if (user && user.profile && (user.profile.changedName || !user.profile.guest)) { 
-			html += user.profile.username
-			if(user.profile.username.toLowerCase().indexOf("hunter")> -1) {
-				easter_egg = "<i class=\"fa fa-paw\"></i>"
-			}
-		} else {
-			html += "Somebody"+(this.userId===Meteor.userId()?" (You!) <i class=\"fa fa-edit\" data-action=\"name_edit\"></i>":"")
-		}
-		
-		html+=easter_egg
-		return html
-		*/
 
 	},
 	
+	//Returns the 3TD's with intents for behind someones name
 	intents : function() {
 		var html_string = ""
 		
@@ -105,6 +91,8 @@ Template.user_list.helpers({
 })
 
 Template.user_list.events({
+
+	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
 		Meteor.call("roomSetUserIntent", {
 			intent: e.target.dataset.intent,
@@ -113,11 +101,13 @@ Template.user_list.events({
 		})
 	},
 	
+	//When a user clicks the edit name button, show the form
 	'click [data-action="name_edit"]' : function(e,tmp) {
 		console.log("Clicked edit_name")
 		Session.set("editing_name",true)
 	},
 	
+	//When the user submits the form or presses the checkmark, change name
 	'submit, click [data-action="name_edit_confirm"]' : function(e,tmp) {
 		var username = tmp.find("#name_edit").value
 		Meteor.call("userChangeName",{
@@ -125,9 +115,10 @@ Template.user_list.events({
 			name: username
 		})
 		Session.set("editing_name",false)
-		return false
+		return false //Prevent form submit
 	},
 	
+	//When a user clicks the cancel button, hide the form
 	'click [data-action="name_edit_cancel"]' : function(e,tmp) {
 		Session.set("editing_name",false)
 	}

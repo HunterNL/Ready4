@@ -6,6 +6,7 @@ Router.route("/",function() {
 	name: "home"
 });
 
+//Main route
 Router.route("/:name/:_id",function() {
 	console.log("Ran room route")
 	
@@ -21,19 +22,17 @@ Router.route("/:name/:_id",function() {
 		return false;
 	}
 	
-	//Grab roomId from URL and get the complete room from DB
-	//Also enstabishes dependancy, rerunning this as needed
+	//Wait untill we got the room info
 	this.wait(Meteor.subscribe("room_single",this.params._id))
 	
-	
+	//Hurray reactive programming
 	if(this.ready())  {
 		var room = Rooms.findOne(this.params._id);
 		console.log("room ",room)
 	
 		if(!room) {
 		
-			console.log("no room")
-			//Get server to create the room
+			//No room, lets go get the server to make one!
 			Meteor.call("roomCreate",{
 				title: this.params.name,
 				id: this.params._id
@@ -44,7 +43,6 @@ Router.route("/:name/:_id",function() {
 			
 		} else {
 		
-			console.log('got room')
 			//If we got a room, add ourselves if we're not in already
 			if(!roomContainsUser(room,Meteor.userId())) {
 				console.log("adding user ",Meteor.userId()," to room ",room._id)
@@ -76,6 +74,11 @@ function ensureUserId(call) {
 
  
 Meteor.methods({
+	/*Creates a new room, takes:
+		args.title		Room title
+		args._id 		Room ID
+		All required
+	*/
 	"roomCreate" : function(args) {
 		//ensureUserId(this);
 		
@@ -98,26 +101,16 @@ Meteor.methods({
 		}
 	
 		var room_id = Rooms.insert(query);
-		
-		/*var succes = Meteor.call("roomAddUser",{
-			roomId: room_id, 
-			userId: this.userId,
-			intent: "YEP",
-		}) 
-		
-		if(succes) {
-			return {
-				roomId: room_id,
-				title: title
-			}
-		} else {
-			return false
-		}*/
-		
-		
 	},
 	
-	//Adds a userID to a room , takes an object with userId and intent string and optionaly ready time
+	/*Adds a userID to a room , takes an object with userId and intent string and optionaly ready time
+		Arguments:
+		
+		args.roomId 		RoomID to add user to
+		args.userId 		User to add to room
+		args.intent 		Intent of user (YEP,NOPE,LATER)
+		All are required
+	*/
 	"roomAddUser" : function(args) {
 		console.log("Adding user ",args.userId," with intent ",args.intent," to room ",args.roomId)
 		if(!args) {return false;}
@@ -146,9 +139,14 @@ Meteor.methods({
 		return true
 	},
 	
-	//Sets intent for specific user in specific room
+	/*Sets intent for specific user in specific room
+		Arguments:
+			args.roomId		RoomID to change intent in
+			args.userID		User to change intent of
+			args.intent 	Intent to set 
+			All required
+	*/
 	roomSetUserIntent : function(args) {
-	
 		if(!args) {return false;}
 		if(!args.roomId) {return false;}
 		if(!args.intent) {return false;}
@@ -168,6 +166,10 @@ Meteor.methods({
 		
 	},
 	
+	/* Changes username,
+		args.id		UserID to change name for //TODO: Hang on, I can get rid of this
+		args.name 	Name to set, or false-ish to reset
+	*/
 	userChangeName : function(args) {
 		if(!(args && args.id)) {
 			throw new Meteor.Error("invalid_arguments_userchangename","Invalid arguments to change user name method","ID: "+args.id+" Name:"+args.name)
@@ -184,8 +186,6 @@ Meteor.methods({
 				"profile.changedUserName" : !!args.name
 			}
 		})
-	
-	
 	}
 });
 
