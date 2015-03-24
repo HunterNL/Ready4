@@ -31,7 +31,7 @@
 <template name="user_list">
 <div>
 <table>
-{{#each users}} 
+{{#each roomusers}} 
 	<tr class={{trclass}}>
 		{{#if editing_name}}
 			<form id="name_edit_form"><input id="name_edit" type="text" onshow="console.log('hi')"></form>

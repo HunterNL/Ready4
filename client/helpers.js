@@ -30,16 +30,20 @@ Template.room.helpers({
 
 
 Template.user_list.helpers({
+	roomusers : function() {
+		return Meteor.users.find({roomId : this._id})
+	},
+
 	user : function() {
 		return Meteor.users.findOne(this.userId)
 	},
 	
 	trclass : function() {
-		return (Meteor.userId()==this.userId?"is_self":"")
+		return (Meteor.userId()==this._id?"is_self":"")
 	},
 	
 	editing_name : function() {
-		return (Session.get("editing_name") === true && this.userId == Meteor.userId())
+		return (Session.get("editing_name") === true && this._id == Meteor.userId())
 	},
 	
 	//Gets the name of a user, including self suffix, defaulting when no name is set
@@ -53,11 +57,11 @@ Template.user_list.helpers({
 			var default_name = "Somebody" + (isSelf(user)?suffix:"")
 			
 			
-			if(!user || !user.username || !user.profile) {
+			if(!user || !user.username) {
 				return default_name 
 			} 
 			
-			if(user.profile.changedUserName) {
+			if(user.changedUserName) {
 				return user.username
 			} else {
 				return default_name 
@@ -65,7 +69,7 @@ Template.user_list.helpers({
 		}
 		
 	
-		var user = Meteor.users.findOne(this.userId)
+		var user = Meteor.users.findOne(this._id)
 		var username = getName(user)
 		var easter_egg = (username.toLowerCase().indexOf("hunter")> -1?" <i class='fa fa-paw'></i>":"") //Rawr
 		var edit_icon = (isSelf(user)?'<i class="fa fa-edit" data-action="name_edit"></i>':"")
@@ -94,26 +98,18 @@ Template.user_list.events({
 
 	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
-		Meteor.call("roomSetUserIntent", {
-			intent: e.target.dataset.intent,
-			userId : Meteor.userId(),
-			roomId : Template.parentData(0)._id
-		})
+		Meteor.call("userSetIntent",e.target.dataset.intent)
 	},
 	
 	//When a user clicks the edit name button, show the form
 	'click [data-action="name_edit"]' : function(e,tmp) {
-		console.log("Clicked edit_name")
 		Session.set("editing_name",true)
 	},
 	
 	//When the user submits the form or presses the checkmark, change name
 	'submit, click [data-action="name_edit_confirm"]' : function(e,tmp) {
 		var username = tmp.find("#name_edit").value
-		Meteor.call("userChangeName",{
-			id : Meteor.userId(),
-			name: username
-		})
+		Meteor.call("userChangeName",username)
 		Session.set("editing_name",false)
 		return false //Prevent form submit
 	},

@@ -6,52 +6,41 @@ Router.route("/",function() {
 	name: "home"
 });
 
+//Helper
+function roomContainsUser(roomId,userId) {
+	check(roomId,String)
+	check(userId,String)
+	var user = Meteor.users.findOne(userId)
+	return (user.roomId===roomId) 
+}
+
 //Main route
 Router.route("/:name/:_id",function() {
 	console.log("Ran room route")
 	
-	//Helper
-	function roomContainsUser(room,id) {
-		var users = room.users;
-		
-		for(var i=0;i<users.length;i++) {
-			if(users[i].userId==id) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	//Wait untill we got the room info
+	//TODO: Don't wait and add fancy animations to hide loading times :)
 	this.wait(Meteor.subscribe("room_single",this.params._id))
 	this.wait(Meteor.subscribe("room_userdata",this.params._id))
 	
 	//Hurray reactive programming
 	if(this.ready())  {
 		var room = Rooms.findOne(this.params._id);
-		console.log("room ",room)
-	
-		if(!room) {
 		
+		if(!room) {
 			//No room, lets go get the server to make one!
 			Meteor.call("roomCreate",{
 				title: this.params.name,
-				id: this.params._id
+				roomId: this.params._id,
 			})
 			
 			//And show the user a loading screen
 			this.render("loading")
 			
 		} else {
-		
 			//If we got a room, add ourselves if we're not in already
-			if(!roomContainsUser(room,Meteor.userId())) {
-				console.log("adding user ",Meteor.userId()," to room ",room._id)
-				Meteor.call("roomAddUser",{
-					userId: Meteor.userId(),
-					roomId: room._id,
-					intent: "YEP"
-				})
+			if(!roomContainsUser(room._id,Meteor.userId())) {
+				Meteor.call("roomAddUser",room._id)
 			}
 			
 			//Finally render the room with room data
@@ -65,23 +54,19 @@ Router.route("/:name/:_id",function() {
 	name: "room"
 });
 
-//Whats a decent way to give this as arg? call/apply/bind??
-//Unused with accounts-guest package
-function ensureUserId(call) {
-	if(!call.userId) {
-		call.setUserId(Random.id());
-	}
-}
 
  
 Meteor.methods({
-	/*Creates a new room, takes:
+	/*Creates a new room and adds the logged in user to it , takes:
 		args.title		Room title
-		args._id 		Room ID
+		args.roomId 		Room ID
 		All required
 	*/
-	"roomCreate" : function(args) {
-		//ensureUserId(this);
+	roomCreate : function(args) {
+		check(args,{
+			title : String,
+			roomId : String
+		})
 		
 		var title = args.title || 'Unnamed room'
 		
@@ -90,103 +75,66 @@ Meteor.methods({
 			title: title,
 			date_created : new Date(),
 			date_last_activity : new Date(),
-			users : []
 		}
 		
-		if(args.id) {
-			query._id = args.id
+		if(args.roomId) {
+			query._id = args.roomId
 		}
 		
-		if(Rooms.findOne(args.id)) {
-			throw new Meteor.error("duplicate_room_id","Duplicate room id","ID: "+args.id)
+		if(Rooms.findOne(args.roomId)) {
+			throw new Meteor.error("duplicate_room_id","Duplicate room id","ID: "+args.roomId)
 		}
-	
+		
 		var room_id = Rooms.insert(query);
+		Meteor.users.update(this.userId,{$set:{roomId:args.roomId}})
 	},
 	
-	/*Adds a userID to a room , takes an object with userId and intent string and optionaly ready time
-		Arguments:
+	//Adds logged in user to given room
+	roomAddUser : function(roomId) {
+		check(roomId,String)
+		var userId = this.userId
+		if(roomContainsUser(roomId,userId)) {return false}
 		
-		args.roomId 		RoomID to add user to
-		args.userId 		User to add to room
-		args.intent 		Intent of user (YEP,NOPE,LATER)
-		All are required
-	*/
-	"roomAddUser" : function(args) {
-		console.log("Adding user ",args.userId," with intent ",args.intent," to room ",args.roomId)
-		if(!args) {return false;}
-		if(!args.roomId) {return false;}
+		console.log("Adding user "+this.userId+" to room "+roomId)
 		
-		var userid;
-		var intent;
-		
-		if(args.userId) {
-			 userId = args.userID;
-		} else {
-			return false;
-		}
-		
-		if(args.intent) {
-			intent = args.intent
-		} else {
-			return false;
-		}
-		
-		
-		Rooms.update(args.roomId,{
-			$push : {users : {userId:args.userId,intent:args.intent}}
-		});
+		Meteor.users.update(userId,{$set: {
+			roomId:roomId,
+			intent:"YEP"
+		}})
 		
 		return true
 	},
 	
-	/*Sets intent for specific user in specific room
-		Arguments:
-			args.roomId		RoomID to change intent in
-			args.userID		User to change intent of
-			args.intent 	Intent to set 
-			All required
-	*/
-	roomSetUserIntent : function(args) {
-		if(!args) {return false;}
-		if(!args.roomId) {return false;}
-		if(!args.intent) {return false;}
-		if(!args.userId) {return false;}
+	//Sets logged in user's intent
+	userSetIntent : function(intent) {
+		check(intent,String)
+		Match.test(intent,Match.OneOf("YEP","NOPE","LATER"))
 		
-		//Prevent people changing other people's intent
-		if(args.userId != this.userId) {return false} 
-		
-		var result = Rooms.update({
-			_id: args.roomId,
-			"users.userId" : args.userId
-		},{
-				$set : {
-					"users.$.intent" : args.intent
-				}
-		});
+		Meteor.users.update(this.userId,{
+			$set : {
+				intent : intent
+			}
+		})
 		
 	},
 	
-	/* Changes username,
-		args.id		UserID to change name for //TODO: Hang on, I can get rid of this
-		args.name 	Name to set, or false-ish to reset
-	*/
-	userChangeName : function(args) {
-		if(!(args && args.id)) {
-			throw new Meteor.Error("invalid_arguments_userchangename","Invalid arguments to change user name method","ID: "+args.id+" Name:"+args.name)
-		}
-		
-		if(this.userId!=args.id) {
-			throw new Meteor.Error("security_userchangename","Requesting user and target user for changename don't match",this.userid+" "+args.id)
-		}
-		
-		
-		Meteor.users.update(args.id,{
+	//Change username of currently logged in user, reset if false-ish
+	userChangeName : function(newname) {
+		check(newname,String)
+		var q = Meteor.users.update(this.userId,{
 			$set : {
-				username: args.name,
-				"profile.changedUserName" : !!args.name
+				username: newname,
+				changedUserName : !!newname
 			}
 		})
+		
+		console.log(q)
+	},
+	
+	//Remove me sometime
+	WIPE : function() {
+		Meteor.users.remove({})
+		Rooms.remove({})
 	}
 });
 
