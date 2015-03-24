@@ -46,6 +46,7 @@ table td:first-child {
 	padding-right: 2em;
 }
 
+/* Make tds and icon in own tr look clickable*/
 .is_self td[data-intent],.is_self i {
 	cursor: pointer;
 }

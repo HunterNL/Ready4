@@ -24,6 +24,7 @@ Router.route("/:name/:_id",function() {
 	
 	//Wait untill we got the room info
 	this.wait(Meteor.subscribe("room_single",this.params._id))
+	this.wait(Meteor.subscribe("room_userdata",this.params._id))
 	
 	//Hurray reactive programming
 	if(this.ready())  {

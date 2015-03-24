@@ -121,6 +121,11 @@ Template.user_list.events({
 	//When a user clicks the cancel button, hide the form
 	'click [data-action="name_edit_cancel"]' : function(e,tmp) {
 		Session.set("editing_name",false)
+	},
+	
+	//When a user presses escape, hide the form
+	'keypress [data-action="name_edit_cancel"]' : function(e,tmp) {
+		console.log(e)
 	}
 	
 })

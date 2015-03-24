@@ -34,7 +34,7 @@
 {{#each users}} 
 	<tr class={{trclass}}>
 		{{#if editing_name}}
-			<form id="name_edit_form"><input id="name_edit" type="text"></form>
+			<form id="name_edit_form"><input id="name_edit" type="text" onshow="console.log('hi')"></form>
 			<i class="fa fa-check" data-action="name_edit_confirm"></i>
 			<i class="fa fa-undo" data-action="name_edit_cancel"></i>
 		{{else}}
