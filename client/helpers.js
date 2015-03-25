@@ -31,7 +31,7 @@ Template.room.helpers({
 
 Template.user_list.helpers({
 	roomusers : function() {
-		return Meteor.users.find({roomId : this._id})
+		return Meteor.users.find({"rooms.roomId": this._id})
 	},
 
 	user : function() {
@@ -56,16 +56,19 @@ Template.user_list.helpers({
 			var suffix = " (You!)"
 			var default_name = "Somebody" + (isSelf(user)?suffix:"")
 			
-			
-			if(!user || !user.username) {
+			if(!user || !user.profile) {
 				return default_name 
 			} 
+			
+			return user.profile.username || default_name
+			
+			/*
 			
 			if(user.changedUserName) {
 				return user.username
 			} else {
 				return default_name 
-			}
+			}*/
 		}
 		
 	
@@ -80,6 +83,13 @@ Template.user_list.helpers({
 	
 	//Returns the 3TD's with intents for behind someones name
 	intents : function() {
+		function findRoomInArray(array,roomId) {
+			for(var i=0;i<array.length;i++) {
+				if(array[i].roomId==roomId) {
+					return array[i]
+				}
+			}
+		}
 		var html_string = ""
 		
 		function createTD(intent,active) {
@@ -87,7 +97,7 @@ Template.user_list.helpers({
 		}
 		
 		["YEP","NOPE","LATER"].forEach(function(intent){
-			html_string+=createTD(intent,intent==this.intent)
+			html_string+=createTD(intent,intent==findRoomInArray(this.rooms,Template.parentData()._id).intent) //Oneliner wheeeeeeeee
 		},this);
 		
 		return html_string;
@@ -98,7 +108,8 @@ Template.user_list.events({
 
 	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
-		Meteor.call("userSetIntent",e.target.dataset.intent)
+		Meteor.call("userSetIntent",e.target.dataset.intent,tmp.parent().data._id)
+		//Template.parentData() wouldn't work :s
 	},
 	
 	//When a user clicks the edit name button, show the form
