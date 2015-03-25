@@ -47,6 +47,7 @@ Template.user_list.helpers({
 	},
 	
 	//Gets the name of a user, including self suffix, defaulting when no name is set
+	//TODO: fix this, it's way too heavy for a helper
 	name : function() {
 		function isSelf(user) {
 			return user && user._id == Meteor.userId()
@@ -62,13 +63,6 @@ Template.user_list.helpers({
 			
 			return user.profile.username || default_name
 			
-			/*
-			
-			if(user.changedUserName) {
-				return user.username
-			} else {
-				return default_name 
-			}*/
 		}
 		
 	
@@ -81,7 +75,7 @@ Template.user_list.helpers({
 
 	},
 	
-	//Returns the 3TD's with intents for behind someones name
+	//Returns the 3TD's with intents for behind someones name, is also quite a mess
 	intents : function() {
 		function findRoomInArray(array,roomId) {
 			for(var i=0;i<array.length;i++) {
@@ -90,22 +84,26 @@ Template.user_list.helpers({
 				}
 			}
 		}
-		var html_string = ""
 		
+		//Creates single <td> with proper tags/classes/content
 		function createTD(intent,active) {
 			return "<td data-intent=\""+intent+"\" class=\""+intent.toLowerCase()+(active?" active":"")+"\">"+intent+"</td>"
 		}
 		
-		["YEP","NOPE","LATER"].forEach(function(intent){
-			html_string+=createTD(intent,intent==findRoomInArray(this.rooms,Template.parentData()._id).intent) //Oneliner wheeeeeeeee
-		},this);
+		var html_string = ""
+		var user_intent = findRoomInArray(this.rooms,Template.parentData()._id).intent
+		var intents = ["YEP","NOPE","LATER"]
+		
+		//For every intent, create the table cells
+		intents.forEach(function(intent){
+			html_string+=createTD(intent,intent===user_intent) //Oneliner wheeeeeeeee
+		});
 		
 		return html_string;
 	}
 })
 
 Template.user_list.events({
-
 	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
 		Meteor.call("userSetIntent",e.target.dataset.intent,tmp.parent().data._id)

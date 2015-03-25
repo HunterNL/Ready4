@@ -1,9 +1,13 @@
 var Example_events = [
-"another round of Payday",
-"a game of Cards Against Humanity",
+"Payday",
+"Cards Against Humanity",
 "D&D",
 "Team Fortress",
-"Pair Programming"
+"Pair Programming",
+"Tabletop Simulator",
+"Dota",
+"Counter Strike",
+"raiding"
 ]
 
 function setRandomEvent() {

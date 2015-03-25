@@ -11,6 +11,7 @@ function roomContainsUser(roomId,user) {
 	
 	//IndexOf won't work AFAIK since we need to know the exacty object, including the intent field
 	//So lets use an helper function instead
+	//TODO: Make generic version and move to utils lib
 	function arrayContainsRoom(array,roomId) {
 		for(var i=0;i<array.length;i++) {
 			if(array[i].roomId===roomId) {
@@ -80,12 +81,12 @@ Router.route("/:name/:_id",function() {
 
  
 Meteor.methods({
-	/*Creates a new room and adds the logged in user to it , takes:
+	/*Creates a new room, takes:
 		args.title		Room title
 		args.roomId 		Room ID
 		All required
 	*/
-	roomCreate : function(args) {
+	roomCreate : function(args) { //Err, still uses old argument style
 		check(args,{
 			title : String,
 			roomId : String
@@ -109,7 +110,7 @@ Meteor.methods({
 		}
 		
 		var room_id = Rooms.insert(query);
-		Meteor.users.update(this.userId,{$set:{roomId:args.roomId}})
+		//Meteor.users.update(this.userId,{$set:{roomId:args.roomId}}) //Users will nicely add themselves now
 	},
 	
 	//Adds logged in user to given room
