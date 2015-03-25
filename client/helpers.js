@@ -124,7 +124,7 @@ Template.user_list.events({
 //When a user presses escape, hide the form
 Meteor.startup(function(){
 	document.addEventListener("keydown",function(e){
-		if(e.which && e.which == 27) { //Extra safeguard since according to moz
+		if(e && e.which && e.which == 27) { //Extra safeguard since according to moz
 			Session.set("editing_name",false) // all ways to read a keycode are
 		} //either deprecated or unimplemented...developers...
 		//https://developer.mozilla.org/en-US/docs/Web/Events/keydown
