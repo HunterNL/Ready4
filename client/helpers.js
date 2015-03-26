@@ -1,4 +1,5 @@
 Session.setDefault("editing_name",false)
+Session.setDefault("editing_title",false)
 
 Template.home.helpers({
 	example_event : function() {
@@ -22,11 +23,7 @@ Template.room_form.events({
 	}
 });
 
-Template.room.helpers({
-	isOwner: function() {
-		return (this.owner == Meteor.userId());
-	}
-});
+
 
 
 Template.user_list.helpers({
@@ -105,6 +102,7 @@ Template.user_list.helpers({
 	}
 })
 
+//TODO: Turn the edit fields into something more generic and reusable
 Template.user_list.events({
 	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
@@ -117,6 +115,8 @@ Template.user_list.events({
 		Session.set("editing_name",true)
 	},
 	
+
+	
 	//When the user submits the form or presses the checkmark, change name
 	'submit, click [data-action="name_edit_confirm"]' : function(e,tmp) {
 		var username = tmp.find("#name_edit").value
@@ -125,11 +125,46 @@ Template.user_list.events({
 		return false //Prevent form submit
 	},
 	
+
+	
+	
 	//When a user clicks the cancel button, hide the form
 	'click [data-action="name_edit_cancel"]' : function(e,tmp) {
 		Session.set("editing_name",false)
+	}
+	
+	
+	
+})
+
+Template.room.helpers({
+	isOwner: function() {
+		return (this.owner == Meteor.userId());
 	},
 	
+	editing_title : function() {
+		return (this.owner == Meteor.userId() && Session.get("editing_title"))
+	}
+});
+
+//Same stories as user_list template
+Template.room.events({
+	'submit, click [data-action="title_edit_confirm"]' : function(e,tmp) {
+		var roomtitle = tmp.find("#title_edit").value
+		console.log(this._id,roomtitle)
+		Meteor.call("roomChangeTitle",this._id,roomtitle)
+		Session.set("editing_title",false)
+		return false //Prevent form submit
+	},
+	
+	
+	'click [data-action="title_edit"]' : function(e,tmp) {
+		Session.set("editing_title",true)
+	},
+	
+	'click [data-action="title_edit_cancel"]' : function(e,tmp) {
+		Session.set("editing_title",false)
+	}
 	
 })
 //When a user presses escape, hide the form
@@ -137,6 +172,7 @@ Meteor.startup(function(){
 	document.addEventListener("keydown",function(e){
 		if(e && e.which && e.which == 27) { //Extra safeguard since according to moz
 			Session.set("editing_name",false) // all ways to read a keycode are
+			Session.set("editing_title",false) // all ways to read a keycode are
 		} //either deprecated or unimplemented...developers...
 		//https://developer.mozilla.org/en-US/docs/Web/Events/keydown
 	})

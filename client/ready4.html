@@ -27,12 +27,11 @@
 </template>
 
 <template name="user_list">
-<div>
 <table>
 {{#each roomusers}} 
 	<tr class={{trclass}}>
 		{{#if editing_name}}
-			<form id="name_edit_form"><input id="name_edit" type="text" onshow="console.log('hi')"></form>
+			<form id="name_edit_form"><input id="name_edit" type="text"></form>
 			<i class="fa fa-check" data-action="name_edit_confirm"></i>
 			<i class="fa fa-undo" data-action="name_edit_cancel"></i>
 		{{else}}
@@ -43,11 +42,19 @@
 	</tr>
 {{/each}}
 </table>
-</div>
 </template>
 
 <template name="room">
-<h1>Ready for {{title}}?</h1>
+{{#if editing_title}}
+	<h1 class="editing_title">
+	<form id="title_edit_form"><input id="title_edit" type="text"></form>?
+	<i class="fa fa-check" data-action="title_edit_confirm"></i>
+	<i class="fa fa-undo" data-action="title_edit_cancel"></i>
+	</h1>
+{{else}}
+	<h1>Ready for {{title}}? {{#if isOwner}}<i class="fa fa-edit" data-action="title_edit"></i>{{/if}}</h1>
+{{/if}}
+
 {{#if isOwner}}
 	{{>room_admin}}
 {{/if}}
