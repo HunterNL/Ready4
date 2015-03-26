@@ -11,7 +11,7 @@ Template.room_form.events({
 	//Catch submit
 	"submit" : function(e,tmp) { 
 	
-		var room_name = tmp.find("input").value; //Get room name from form
+		var room_name = tmp.find("input").value || "an unnamed event"; //Get room name from form
 		
 		Router.go("room",{
 			_id : Random.id(),
@@ -31,7 +31,9 @@ Template.room.helpers({
 
 Template.user_list.helpers({
 	roomusers : function() {
-		return Meteor.users.find({"rooms.roomId": this._id})
+		return Meteor.users.find({
+			"rooms.roomId": this._id
+		}) //TODO: Actually find a way to sort with the current data structure
 	},
 
 	user : function() {

@@ -3,6 +3,7 @@ var userFields = {
 	profile:1,
 	_id:1,
 	rooms:1,
+	date_last_activity: 1 //Only for debugging right now
 }
 
 //Null publishes to all users without having to subscribe
