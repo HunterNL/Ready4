@@ -66,7 +66,7 @@ Template.user_list.helpers({
 		}
 		
 	
-		var user = Meteor.users.findOne(this._id)
+		var user = this
 		var username = getName(user)
 		var easter_egg = (username.toLowerCase().indexOf("hunter")> -1?" <i class='fa fa-paw'></i>":"") //Rawr
 		var edit_icon = (isSelf(user)?'<i class="fa fa-edit" data-action="name_edit"></i>':"")
