@@ -106,8 +106,9 @@ Template.user_list.helpers({
 Template.user_list.events({
 	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
-		Meteor.call("userSetIntent",e.target.dataset.intent,tmp.parent().data._id)
-		//Template.parentData() wouldn't work :s
+		var intent = e.target.dataset.intent
+		var roomId = Template.parentData(0)._id //This works like this.. somehow
+		Meteor.call("userSetIntent",intent,roomId)
 	},
 	
 	//When a user clicks the edit name button, show the form
