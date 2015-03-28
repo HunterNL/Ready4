@@ -94,12 +94,15 @@ Template.user_list.helpers({
 		}
 		
 		function printQuestionMark() {
-			html_string+=createTD("?",true)
+			html_string+=createTD("?",true,3)
 		}
 		
 		//Creates single <td> with proper tags/classes/content
-		function createTD(intent,active) {
-			return "<td data-intent=\""+intent+"\" class=\""+intent.toLowerCase()+(active?" active":"")+"\">"+intent+"</td>"
+		function createTD(intent,active,colspan) {
+			var css_class = intent.toLowerCase() + (active?" active":"")
+			var colspan = colspan || ""
+			//return "<td data-intent=\""+intent+"\" class=\""+intent.toLowerCase()++"\" >"+intent+"</td>"
+			return '<td data-intent="'+intent+'" class="'+css_class+'" colspan="'+colspan+'">'+intent+'</td>'
 		}
 		
 		var html_string = ""
@@ -118,9 +121,11 @@ Template.user_list.helpers({
 			printQuestionMark()
 		}*/
 		
-		printRegularIntents()
+		
 		if(this._id != Meteor.userId() && user_intent == "?") {
 			printQuestionMark()
+		} else {
+			printRegularIntents()
 		}
 		
 		
