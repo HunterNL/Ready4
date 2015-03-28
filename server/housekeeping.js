@@ -2,12 +2,10 @@
 
 function getCutoffDate() {
 	var date_7_days_ago = Date.now() - (7 * 24 * 60 * 60 * 1000) //7 days
-	var date_7_days_ago = new Date(date_7_days_ago) //Convert to date object
-	return new Date(date_7_days_ago)
+	return new Date(date_7_days_ago) //convert to Date object
 }
 
 function clearOldUsers() {
-
 	var users_removed_count = Meteor.users.remove({
 		date_last_activity : {$lt: getCutoffDate()}
 	})
@@ -19,6 +17,7 @@ function clearOldRooms() {
 	var room_removed_count = Rooms.remove({
 		date_last_activity : {$lt: getCutoffDate()}
 	})
+	
 	console.log("Removed "+room_removed_count+ " inactive rooms")
 }
 
