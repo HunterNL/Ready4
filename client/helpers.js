@@ -84,6 +84,19 @@ Template.user_list.helpers({
 			}
 		}
 		
+		function printRegularIntents(){
+			var intents = ["YEP","NOPE","LATER"]
+			
+			intents.forEach(function(intent){
+			
+			html_string+=createTD(intent,intent===user_intent) //Oneliner wheeeeeeeee
+			});
+		}
+		
+		function printQuestionMark() {
+			html_string+=createTD("?",true)
+		}
+		
 		//Creates single <td> with proper tags/classes/content
 		function createTD(intent,active) {
 			return "<td data-intent=\""+intent+"\" class=\""+intent.toLowerCase()+(active?" active":"")+"\">"+intent+"</td>"
@@ -91,12 +104,30 @@ Template.user_list.helpers({
 		
 		var html_string = ""
 		var user_intent = findRoomInArray(this.rooms,Template.parentData()._id).intent
-		var intents = ["YEP","NOPE","LATER"]
+		/*
+		var print_all = (this._id == Meteor.userId())
+		console.log("Origional print all:",print_all)
+		
+		if(user_intent=="?") {print_all = !print_all}
+		
+		console.log("second print all: ",print_all)
+		
+		if(print_all) {
+			printRegularIntents()
+		} else {
+			printQuestionMark()
+		}*/
+		
+		printRegularIntents()
+		if(this._id != Meteor.userId() && user_intent == "?") {
+			printQuestionMark()
+		}
+		
+		
+		
 		
 		//For every intent, create the table cells
-		intents.forEach(function(intent){
-			html_string+=createTD(intent,intent===user_intent) //Oneliner wheeeeeeeee
-		});
+		
 		
 		return html_string;
 	}
