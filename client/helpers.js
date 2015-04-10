@@ -142,42 +142,43 @@ Template.user_list.helpers({
 Template.user_list.events({
 	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
-		var intent = e.target.dataset.intent
-		var roomId = Template.parentData(0)._id //This works like this.. somehow
-		Meteor.call("userSetIntent",intent,roomId)
+		var intent = e.target.dataset.intent;
+		var roomId = Template.parentData(0)._id; //This works like this.. somehow
+		Meteor.call("userSetIntent",intent,roomId);
 	},
 
 	//When a user clicks the edit name button, show the form
 	'click [data-action="name_edit"]' : function(e,tmp) {
-		Session.set("editing_name",true)
+		Session.set("editing_name",true);
 	},
 
+});
 
+Template.name_edit_field.events({
 
 	//When the user submits the form or presses the checkmark, change name
 	'submit, click [data-action="name_edit_confirm"]' : function(e,tmp) {
-		var username = tmp.find("#name_edit").value
-		Meteor.call("userChangeName",username)
-		Session.set("editing_name",false)
-		return false //Prevent form submit
+		var username = tmp.find("#name_edit").value;
+		Meteor.call("userChangeName",username);
+		Session.set("editing_name",false);
+		return false; //Prevent form submit
 	},
-
-
-
 
 	//When a user clicks the cancel button, hide the form
 	'click [data-action="name_edit_cancel"]' : function(e,tmp) {
-		Session.set("editing_name",false)
+		Session.set("editing_name",false);
 	}
 
+});
 
-
-})
+Template.name_edit_field.onRendered(function(){
+	Template.instance().find("#name_edit").focus();
+});
 
 Template.room.onRendered(function(){
 	gapi.hangout.render("hangouts_placeholder",{
 		render: "createhangout"
-	});	
+	});
 });
 
 Template.room.helpers({

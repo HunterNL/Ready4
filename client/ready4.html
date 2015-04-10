@@ -35,9 +35,7 @@
 {{#each roomusers}}
 	<tr class={{trclass}}>
 		{{#if editing_name}}
-			<form id="name_edit_form"><input id="name_edit" type="text"></form>
-			<i class="fa fa-check" data-action="name_edit_confirm"></i>
-			<i class="fa fa-undo" data-action="name_edit_cancel"></i>
+			{{>name_edit_field}}
 		{{else}}
 			{{{name}}}
 		{{/if}}
@@ -46,6 +44,12 @@
 	</tr>
 {{/each}}
 </table>
+</template>
+
+<template name="name_edit_field">
+	<form id="name_edit_form"><input id="name_edit" type="text"></form>
+	<i class="fa fa-check" data-action="name_edit_confirm"></i>
+	<i class="fa fa-undo" data-action="name_edit_cancel"></i>
 </template>
 
 <template name="room">
