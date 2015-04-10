@@ -1,4 +1,8 @@
-<head><title>Ready 4</title></head>
+<head>
+	<title>Ready 4</title>
+	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+</head>
 
 <template name="home">
 	<p>Poll your friends and see if they're ready for {{example_event}}</p>
@@ -16,7 +20,7 @@
 </form>
 </template>
 
-<template name="room_admin"> 
+<template name="room_admin">
 <div class="outline">
 <p>Great, your poll is now open for friends to enter, just give them the link in your address bar</p>
 </div>
@@ -28,16 +32,16 @@
 
 <template name="user_list">
 <table>
-{{#each roomusers}} 
+{{#each roomusers}}
 	<tr class={{trclass}}>
 		{{#if editing_name}}
 			<form id="name_edit_form"><input id="name_edit" type="text"></form>
 			<i class="fa fa-check" data-action="name_edit_confirm"></i>
 			<i class="fa fa-undo" data-action="name_edit_cancel"></i>
 		{{else}}
-			{{{name}}} 
+			{{{name}}}
 		{{/if}}
-			
+
 		{{{intents}}}
 	</tr>
 {{/each}}
@@ -55,10 +59,10 @@
 	<h1>Ready for {{title}}? {{#if isOwner}}<i class="fa fa-edit" data-action="title_edit"></i>{{/if}}</h1>
 {{/if}}
 
+<div id="hangouts_placeholder"></div>
+
 {{#if isOwner}}
 	{{>room_admin}}
 {{/if}}
 {{>user_list}}
 </template>
-
-
