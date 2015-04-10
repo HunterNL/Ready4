@@ -1,5 +1,5 @@
-Session.setDefault("editing_name",false)
-Session.setDefault("editing_title",false)
+Session.setDefault("editing_name",false);
+Session.setDefault("editing_title",false);
 
 Template.home.helpers({
 	example_event : function() {
@@ -30,47 +30,47 @@ Template.user_list.helpers({
 	roomusers : function() {
 		return Meteor.users.find({
 			"rooms.roomId": this._id
-		}) //TODO: Actually find a way to sort with the current data structure
+		}); //TODO: Actually find a way to sort with the current data structure
 	},
 
 	user : function() {
-		return Meteor.users.findOne(this.userId)
+		return Meteor.users.findOne(this.userId);
 	},
 
 	trclass : function() {
-		return (Meteor.userId()==this._id?"is_self":"")
+		return (Meteor.userId()==this._id?"is_self":"");
 	},
 
 	editing_name : function() {
-		return (Session.get("editing_name") === true && this._id == Meteor.userId())
+		return (Session.get("editing_name") === true && this._id == Meteor.userId());
 	},
 
 	//Gets the name of a user, including self suffix, defaulting when no name is set
 	//TODO: fix this, it's way too heavy for a helper
 	name : function() {
 		function isSelf(user) {
-			return user && user._id == Meteor.userId()
+			return user && user._id == Meteor.userId();
 		}
 
 		function getName(user) {
-			var suffix = " (You!)"
-			var default_name = "Somebody" + (isSelf(user)?suffix:"")
+			var suffix = " (You!)";
+			var default_name = "Somebody" + (isSelf(user)?suffix:"");
 
 			if(!user || !user.profile) {
-				return default_name
+				return default_name;
 			}
 
-			return user.profile.username || default_name
+			return user.profile.username || default_name;
 
 		}
 
 
-		var user = this
-		var username = getName(user)
-		var easter_egg = (username.toLowerCase().indexOf("hunter")> -1?" <i class='fa fa-paw'></i>":"") //Rawr
-		var edit_icon = (isSelf(user)?'<i class="fa fa-edit" data-action="name_edit"></i>':"")
+		var user = this;
+		var username = getName(user);
+		var easter_egg = (username.toLowerCase().indexOf("hunter")> -1?" <i class='fa fa-paw'></i>":""); //Rawr
+		var edit_icon = (isSelf(user)?'<i class="fa fa-edit" data-action="name_edit"></i>':"");
 
-		return "<td>"+username+easter_egg+" "+edit_icon+"</td>"
+		return "<td>"+username+easter_egg+" "+edit_icon+"</td>";
 
 	},
 
@@ -79,34 +79,34 @@ Template.user_list.helpers({
 		function findRoomInArray(array,roomId) {
 			for(var i=0;i<array.length;i++) {
 				if(array[i].roomId==roomId) {
-					return array[i]
+					return array[i];
 				}
 			}
 		}
 
 		function printRegularIntents(){
-			var intents = ["YEP","NOPE","LATER"]
+			var intents = ["YEP","NOPE","LATER"];
 
 			intents.forEach(function(intent){
 
-			html_string+=createTD(intent,intent===user_intent) //Oneliner wheeeeeeeee
+			html_string+=createTD(intent,intent===user_intent); //Oneliner wheeeeeeeee
 			});
 		}
 
 		function printQuestionMark() {
-			html_string+=createTD("?",true,3)
+			html_string+=createTD("?",true,3);
 		}
 
 		//Creates single <td> with proper tags/classes/content
 		function createTD(intent,active,colspan) {
-			var css_class = intent.toLowerCase() + (active?" active":"")
-			var colspan = colspan || ""
+			var css_class = intent.toLowerCase() + (active?" active":"");
+			colspan = colspan || "";
 			//return "<td data-intent=\""+intent+"\" class=\""+intent.toLowerCase()++"\" >"+intent+"</td>"
-			return '<td data-intent="'+intent+'" class="'+css_class+'" colspan="'+colspan+'">'+intent+'</td>'
+			return '<td data-intent="'+intent+'" class="'+css_class+'" colspan="'+colspan+'">'+intent+'</td>';
 		}
 
-		var html_string = ""
-		var user_intent = findRoomInArray(this.rooms,Template.parentData()._id).intent
+		var html_string = "";
+		var user_intent = findRoomInArray(this.rooms,Template.parentData()._id).intent;
 		/*
 		var print_all = (this._id == Meteor.userId())
 		console.log("Origional print all:",print_all)
@@ -123,9 +123,9 @@ Template.user_list.helpers({
 
 
 		if(this._id != Meteor.userId() && user_intent == "?") {
-			printQuestionMark()
+			printQuestionMark();
 		} else {
-			printRegularIntents()
+			printRegularIntents();
 		}
 
 
@@ -136,7 +136,7 @@ Template.user_list.helpers({
 
 		return html_string;
 	}
-})
+});
 
 //TODO: Turn the edit fields into something more generic and reusable
 Template.user_list.events({
@@ -187,37 +187,37 @@ Template.room.helpers({
 	},
 
 	editing_title : function() {
-		return (this.owner == Meteor.userId() && Session.get("editing_title"))
+		return (this.owner == Meteor.userId() && Session.get("editing_title"));
 	}
 });
 
 //Same stories as user_list template
 Template.room.events({
 	'submit, click [data-action="title_edit_confirm"]' : function(e,tmp) {
-		var roomtitle = tmp.find("#title_edit").value
-		console.log(this._id,roomtitle)
-		Meteor.call("roomChangeTitle",this._id,roomtitle)
-		Session.set("editing_title",false)
-		return false //Prevent form submit
+		var roomtitle = tmp.find("#title_edit").value;
+		console.log(this._id,roomtitle);
+		Meteor.call("roomChangeTitle",this._id,roomtitle);
+		Session.set("editing_title",false);
+		return false; //Prevent form submit
 	},
 
 
 	'click [data-action="title_edit"]' : function(e,tmp) {
-		Session.set("editing_title",true)
+		Session.set("editing_title",true);
 	},
 
 	'click [data-action="title_edit_cancel"]' : function(e,tmp) {
-		Session.set("editing_title",false)
+		Session.set("editing_title",false);
 	}
 
-})
+});
 //When a user presses escape, hide the form
 Meteor.startup(function(){
 	document.addEventListener("keydown",function(e){
 		if(e && e.which && e.which == 27) { //Extra safeguard since according to moz
-			Session.set("editing_name",false) // all ways to read a keycode are
-			Session.set("editing_title",false) // all ways to read a keycode are
+			Session.set("editing_name",false); // all ways to read a keycode are
+			Session.set("editing_title",false); // all ways to read a keycode are
 		} //either deprecated or unimplemented...developers...
 		//https://developer.mozilla.org/en-US/docs/Web/Events/keydown
-	})
-})
+	});
+});
