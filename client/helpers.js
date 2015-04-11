@@ -1,4 +1,4 @@
-Session.setDefault("editing_name",false);
+Session.setDefault("editing_username",false);
 Session.setDefault("editing_title",false);
 
 Template.home.helpers({
@@ -42,7 +42,7 @@ Template.user_list.helpers({
 	},
 
 	editing_name : function() {
-		return (Session.get("editing_name") === true && this._id == Meteor.userId());
+		return (Session.get("editing_username") === true && this._id == Meteor.userId());
 	},
 
 	//Gets the name of a user, including self suffix, defaulting when no name is set
@@ -68,7 +68,7 @@ Template.user_list.helpers({
 		var user = this;
 		var username = getName(user);
 		var easter_egg = (username.toLowerCase().indexOf("hunter")> -1?" <i class='fa fa-paw'></i>":""); //Rawr
-		var edit_icon = (isSelf(user)?'<i class="fa fa-edit" data-action="name_edit"></i>':"");
+		var edit_icon = (isSelf(user)?'<i class="fa fa-edit" data-action="edit_username_start"></i>':"");
 
 		return "<td>"+username+easter_egg+" "+edit_icon+"</td>";
 
@@ -138,7 +138,6 @@ Template.user_list.helpers({
 	}
 });
 
-//TODO: Turn the edit fields into something more generic and reusable
 Template.user_list.events({
 	//When a user clicks on an intent behind his name, change intent of user
 	"click .is_self [data-intent]" : function(e,tmp) {
@@ -147,33 +146,18 @@ Template.user_list.events({
 		Meteor.call("userSetIntent",intent,roomId);
 	},
 
-	//When a user clicks the edit name button, show the form
-	'click [data-action="name_edit"]' : function(e,tmp) {
-		Session.set("editing_name",true);
-	},
-
-});
-
-Template.name_edit_field.events({
-
 	//When the user submits the form or presses the checkmark, change name
-	'submit, click [data-action="name_edit_confirm"]' : function(e,tmp) {
-		var username = tmp.find("#name_edit").value;
+	'submit #edit_field_username, click [data-action=username_edit_confirm]' : function(e,tmp) {
+		var username = tmp.find("input").value;
 		Meteor.call("userChangeName",username);
-		Session.set("editing_name",false);
-		return false; //Prevent form submit
 	},
 
-	//When a user clicks the cancel button, hide the form
-	'click [data-action="name_edit_cancel"]' : function(e,tmp) {
-		Session.set("editing_name",false);
+	"click [data-action=edit_username_start]" : function(e,tmp) {
+		Session.set("editing_username",true);
 	}
 
 });
 
-Template.name_edit_field.onRendered(function(){
-	Template.instance().find("#name_edit").focus();
-});
 
 Template.room.onRendered(function(){
 	gapi.hangout.render("hangouts_placeholder",{
@@ -191,24 +175,22 @@ Template.room.helpers({
 	}
 });
 
+
+
+
 //Same stories as user_list template
 Template.room.events({
-	'submit, click [data-action="title_edit_confirm"]' : function(e,tmp) {
-		var roomtitle = tmp.find("#title_edit").value;
-		console.log(this._id,roomtitle);
-		Meteor.call("roomChangeTitle",this._id,roomtitle);
-		Session.set("editing_title",false);
-		return false; //Prevent form submit
+	'submit #edit_field_title, click [data-action=title_edit_confirm]' : function(e,tmp) {
+		var roomtitle = tmp.find("input").value;
+		var roomId = Template.currentData()._id;
+		Meteor.call("roomChangeTitle",roomId,roomtitle);
 	},
 
-
-	'click [data-action="title_edit"]' : function(e,tmp) {
+	"click [data-action=title_edit]" : function(e,tmp) {
 		Session.set("editing_title",true);
-	},
-
-	'click [data-action="title_edit_cancel"]' : function(e,tmp) {
-		Session.set("editing_title",false);
 	}
+
+
 
 });
 //When a user presses escape, hide the form

@@ -35,7 +35,7 @@
 {{#each roomusers}}
 	<tr class={{trclass}}>
 		{{#if editing_name}}
-			{{>name_edit_field}}
+			{{>edit_field autofocus=true name="username"}}
 		{{else}}
 			{{{name}}}
 		{{/if}}
@@ -46,6 +46,7 @@
 </table>
 </template>
 
+
 <template name="name_edit_field">
 	<form id="name_edit_form"><input id="name_edit" type="text"></form>
 	<i class="fa fa-check" data-action="name_edit_confirm"></i>
@@ -55,9 +56,7 @@
 <template name="room">
 {{#if editing_title}}
 	<h1 class="editing_title">
-	<form id="title_edit_form"><input id="title_edit" type="text"></form>?
-	<i class="fa fa-check" data-action="title_edit_confirm"></i>
-	<i class="fa fa-undo" data-action="title_edit_cancel"></i>
+	{{>edit_field autofocus=true name="title"}}
 	</h1>
 {{else}}
 	<h1>Ready for {{title}}? {{#if isOwner}}<i class="fa fa-edit" data-action="title_edit"></i>{{/if}}</h1>
